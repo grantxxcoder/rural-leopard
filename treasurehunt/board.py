@@ -7,6 +7,7 @@ class TileColor(Enum):
     ORANGE = 2
     RED = 3
     GREEN = 4
+    PLAYER = 5
 
 class Board:
     def __init__(self, n, jump_tokens, density_walls):
@@ -24,10 +25,14 @@ class Board:
         print(f"Jump Tokens: {self.jump_tokens}")
         print(f"Walls: {len(self.walls)}")
         print("Board Grid:")
-        self.print_grid()
+        self.print_grid((0,0))
 
-    def print_grid(self):
+    def print_grid(self, player_pos):
         # Print top border with vertical walls
+        temp_store_colour = self.grid[player_pos[0]][player_pos[1]]
+        # set the player pos
+        self.grid[player_pos[0]][player_pos[1]] = TileColor.PLAYER
+
         top_border = ""
         for j in range(self.n):
             if ('v', 0, j) in self.walls:  # Vertical wall above first row
@@ -57,12 +62,14 @@ class Board:
                     divider += "————"
             divider += "—"
             print(divider)
+        self.grid[player_pos[0]][player_pos[1]] = temp_store_colour
+        
 
     def insert_jump(self):
         for _ in range(0, self.jump_tokens):
             x = random.randint(0, self.n - 1)
             y = random.randint(0, self.n - 1)
-            while (self.grid[x][y] == TileColor.YELLOW):
+            while (self.grid[x][y] == TileColor.YELLOW and not (x == 0 and y == 0)):
                 x = random.randint(0, self.n - 1)
                 y = random.randint(0, self.n - 1)
             self.colour_in_square(x, y)
@@ -77,6 +84,17 @@ class Board:
                     ny = ny % self.n
                     if (nx, ny) != (x, y):
                         self.grid[nx][ny] = TileColor.YELLOW
+
+    def clear_square(self, x, y):
+        self.grid[x][y] = TileColor.BLUE
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                nx, ny = x + dx, y + dy
+                # Wrap around if out of bounds (overflow to opposite edge)
+                nx = nx % self.n
+                ny = ny % self.n
+                if (nx, ny) != (x, y):
+                    self.grid[nx][ny] = TileColor.BLUE
 
     def insert_walls(self):
         # Calculate number of walls based on density
@@ -101,6 +119,7 @@ class Board:
         
         selected_walls = random.sample(list(possible_walls), num_walls)
         self.walls = set(selected_walls)
+        print(f"walls: {self.walls}\n")
 
     def insert_treasure(self):
         x = random.randint(1, self.n - 1)
@@ -110,7 +129,45 @@ class Board:
             y = random.randint(0, self.n - 1)
         
         self.grid[x][y] = TileColor.GREEN
+    
+    def has_wall(self, from_pos, to_pos):
+        """Check if there's a wall blocking movement between two adjacent positions."""
+        from_x, from_y = from_pos
+        to_x, to_y = to_pos
         
+        # Calculate the direction of movement
+        dx = to_x - from_x
+        dy = to_y - from_y
+        
+        # Handle wrapping around the grid
+        if dx > 1:  # Moving from bottom to top (wrapping)
+            dx = -1
+        elif dx < -1:  # Moving from top to bottom (wrapping)
+            dx = 1
+        
+        if dy > 1:  # Moving from right to left (wrapping)
+            dy = -1
+        elif dy < -1:  # Moving from left to right (wrapping)
+            dy = 1
+        
+        # Check for horizontal walls
+        if dx == 1:  # Moving down
+            return ('h', from_x, from_y) in self.walls
+        elif dx == -1:  # Moving up
+            return ('h', to_x, to_y) in self.walls
+        
+        # Check for vertical walls
+        elif dy == 1:  # Moving right
+            return ('v', from_x, from_y + 1) in self.walls
+        elif dy == -1:  # Moving left
+            return ('v', from_x, from_y) in self.walls
+        
+        return False  # No wall blocking movement
+
+
+
+
+
 # Example usage:
 if __name__ == "__main__":
     board = Board(8, 3, 0.7)

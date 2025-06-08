@@ -3,6 +3,7 @@
 import argparse
 from board import Board, TileColor
 from player import Player
+from mazegui import start_gui_game
 
 def start(board_size, num_jumps, density_walls, mode):
     if (board_size < 5 or num_jumps < 0 or density_walls < 0 or density_walls >= 1 or mode not in [0, 1]):
@@ -24,6 +25,7 @@ def start(board_size, num_jumps, density_walls, mode):
 
     else:
         print(f"Starting gui game...")
+        start_gui_game(board_size, num_jumps, density_walls)
 
 def start_terminal_game(board_size, num_jumps, density_walls):
     board = Board(board_size, num_jumps, density_walls)

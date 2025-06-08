@@ -119,7 +119,6 @@ class Board:
         
         selected_walls = random.sample(list(possible_walls), num_walls)
         self.walls = set(selected_walls)
-        print(f"walls: {self.walls}\n")
 
     def insert_treasure(self):
         x = random.randint(1, self.n - 1)
@@ -129,6 +128,7 @@ class Board:
             y = random.randint(0, self.n - 1)
         
         self.grid[x][y] = TileColor.GREEN
+        self.treasure_pos = (x, y)
     
     def has_wall(self, from_pos, to_pos):
         """Check if there's a wall blocking movement between two adjacent positions."""
@@ -164,6 +164,8 @@ class Board:
         
         return False  # No wall blocking movement
 
+    def get_treasure_pos(self):
+        return self.treasure_pos
 
 
 

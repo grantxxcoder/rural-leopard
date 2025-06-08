@@ -13,6 +13,9 @@ class Player:
         if self.has_jump:
             self.jump_tokens -= 1
 
+    def get_jumps(self):
+        return self.jump_tokens
+    
     def get_pos(self):
         return self.x, self.y
     

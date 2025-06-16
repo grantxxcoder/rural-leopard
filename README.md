@@ -97,8 +97,3 @@ This project helped me:
 
 MIT — free as your jumps after finding an orange square 🍊
 
----
-
-**Made with frustration, fun, and many print statements.**
-
-```
